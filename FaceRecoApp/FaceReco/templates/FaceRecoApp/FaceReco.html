@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="tr">
+{% load static %}
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yüz Tanıma Uygulaması</title>
+    <link rel="stylesheet" href="../../static/FaceRecoApp/css/FaceRecoStyle.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+        integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+
+<body>
+    <a class="analysis-btn" href="http://127.0.0.1:8000/face/Analysis/">Duygu Analizi</a>
+    <div class="container">
+        <div class="panel left active" id="left-panel">
+            <h1 id="left-button">Yüz Tanıma</h1>
+            <div class="faceReco-wrapper" id="faceReco-wrapper">
+                <div class="left-camera" id="left-camera">
+                    <video class="cameraReco" id="cameraReco" autoplay></video>
+                    <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
+                </div>
+
+                <div class="flexrow-container">
+                    <div class="standard-theme theme-selector" id="standard"></div>
+                    <div class="light-theme theme-selector" id="light"></div>
+                    <div class="darker-theme theme-selector" id="darker"></div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-content" id="info-content">
+                        <ol>
+                            <li>AD <span id="left_name">--</span></li>
+                            <li>SOYAD <span id="left_surname">--</span></li>
+                            <li>DOĞUM TARİHİ <span id="left_dateOfBirth">--/--/----</span></li>
+                            <li>KAN GRUBU <span id="left_bloodGroup">--</span></li>
+                            <li>MESLEĞİ <span id="left_job">--</span></li>
+                            <li>BOY <span id="left_size">--</span> CM</li>
+                            <li>KİLO <span id="left_weight">--</span> KG</li>
+                            <li>YAŞ <span id="left_age">--</span></li>
+                            <li>CİNSİYET <span id="left_gender">--</span></li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel right active" id="right-panel">
+            <h1 id="right-button">Yüz Kayıt</h1>
+            <div class="faceRec-wrapper" id="faceRec-wrapper">
+                <div class="card">
+                    <div class="container-card bg-green-box">
+                        <div class="form-rec">
+                            <div class="right-camera-wrapper">
+                                <div class="right-camera-container">
+                                    <div class="right-camera" id="right-camera">
+                                        <video class="cameraRec" id="cameraRec" autoplay></video>
+                                        <div class="corner top-left"><span id="camera-rec">🔴 REC</span></div>
+                                        <div class="corner top-right"><span id="camera-time">00:00:00</span></div>
+                                        <div class="corner bottom-left"><span>60 FPS</span></div>
+                                        <div class="corner bottom-right"><span>720 x 480</span></div>
+                                    </div>
+                                </div>
+
+                                <div class="camera-button">
+                                    <div class="shutter-container">
+                                        <button class="shutter" id="shutter"></button>
+                                    </div>
+
+                                    <div class="button-pair">
+                                        <div class="btn">
+                                            <button class="button-stop" id="stop">
+                                                <span class="button-text">STOP</span>
+                                            </button>
+                                        </div>
+
+                                        <div class="btn">
+                                            <button class="button-play" id="play">
+                                                <span class="button-text">PLAY</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="max-width: 600px;">
+                                <div id="messageBox" class="messageBoxContainer">
+                                    <div class="messageBox">
+                                        <p class="message">Lütfen, yüzünüzün net göründüğü, önden çekilmiş üç farklı
+                                            fotoğrafı yakın mesafeden çekiniz.</p>
+                                    </div>
+                                </div>
+
+                                <form class="form-info-container" method="post" onsubmit="return submitFormRec()"
+                                    action="http://127.0.0.1:8000/face/Rec/">
+                                    <div class="photos">
+                                        <div class="picture-box">
+                                            <canvas class="picture" id="photo-one"></canvas>
+                                            <input type="hidden" id="photoOne" name="photoOne">
+                                            <img class="delete-button" id="delete-one"
+                                                src="../../static/FaceRecoApp/img/delete.png" alt="DELETE">
+                                            <div class="add-button" id="add-one">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" viewBox="0 0 20 20"
+                                                    height="20" fill="none" class="svg-icon">
+                                                    <g stroke-width="1.5" stroke-linecap="round" stroke="#de8a2a">
+                                                        <circle r="7.5" cy="10" cx="10"></circle>
+                                                        <path d="m9.99998 7.5v5"></path>
+                                                        <path d="m7.5 9.99998h5"></path>
+                                                    </g>
+                                                </svg>
+                                                <span class="lable">Photo 1</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="picture-box">
+                                            <canvas class="picture" id="photo-two"></canvas>
+                                            <input type="hidden" id="photoTwo" name="photoTwo">
+                                            <img class="delete-button" id="delete-two"
+                                                src="../../static/FaceRecoApp/img/delete.png" alt="DELETE">
+                                            <div class="add-button" id="add-two">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" viewBox="0 0 20 20"
+                                                    height="20" fill="none" class="svg-icon">
+                                                    <g stroke-width="1.5" stroke-linecap="round" stroke="#de8a2a">
+                                                        <circle r="7.5" cy="10" cx="10"></circle>
+                                                        <path d="m9.99998 7.5v5"></path>
+                                                        <path d="m7.5 9.99998h5"></path>
+                                                    </g>
+                                                </svg>
+                                                <span class="lable">Photo 2</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="picture-box">
+                                            <canvas class="picture" id="photo-three"></canvas>
+                                            <input type="hidden" id="photoThree" name="photoThree">
+                                            <img class="delete-button" id="delete-three"
+                                                src="../../static/FaceRecoApp/img/delete.png" alt="DELETE">
+                                            <div class="add-button" id="add-three">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" viewBox="0 0 20 20"
+                                                    height="20" fill="none" class="svg-icon">
+                                                    <g stroke-width="1.5" stroke-linecap="round" stroke="#de8a2a">
+                                                        <circle r="7.5" cy="10" cx="10"></circle>
+                                                        <path d="m9.99998 7.5v5"></path>
+                                                        <path d="m7.5 9.99998h5"></path>
+                                                    </g>
+                                                </svg>
+                                                <span class="lable">Photo 3</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-info">
+                                        <input type="text" id="right_name" name="name" class="input" placeholder="AD"
+                                            required>
+                                        <input type="text" id="right_surname" name="surname" class="input"
+                                            placeholder="SOYAD" required>
+                                        <input type="datetime" id="right_date_of_birth" name="date_of_birth"
+                                            class="input" placeholder="DOĞUM TARİHİ" maxlength="10" required>
+                                        <input type="text" id="right_job" name="job" class="input" placeholder="MESLEK"
+                                            required>
+                                        <input type="number" id="right_size" name="size" class="input" placeholder="BOY"
+                                            required>
+                                        <input type="number" id="right_weight" name="weight" class="input"
+                                            placeholder="KİLO" required>
+
+                                        <select class="input" id="right_blood_group_drop_box" name="blood_group"
+                                            style="width: 215px;" required>
+                                            <option value="">KAN GRUBU</option>
+                                            <option value="ARh+">ARh+</option>
+                                            <option value="ARh-">ARh-</option>
+                                            <option value="BRh+">BRh+</option>
+                                            <option value="BRh-">BRh-</option>
+                                            <option value="ABRh+">ABRh+</option>
+                                            <option value="ABRh-">ABRh-</option>
+                                            <option value="0Rh+">0Rh+</option>
+                                            <option value="0Rh-">0Rh-</option>
+                                        </select>
+
+                                        <select class="input" id="right_gender_drop_box" name="gender"
+                                            style="width: 215px;" required>
+                                            <option value="">CİNSİYET</option>
+                                            <option value="ERKEK">ERKEK</option>
+                                            <option value="KADIN">KADIN</option>
+                                        </select>
+                                    </div>
+
+                                    <button type="submit" class="ui-btn"><span>KAYDET</span></button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../static/FaceRecoApp/js/FaceRecoScript.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        var status = "{{ status }}";
+        var message = "{{ message }}";
+
+        if (message) {
+            if (status == "True") {
+                showMessage(message, rightPanel, true);
+            } else {
+                showMessage(message, rightPanel, false)
+            }
+        }
+    </script>
+</body>
+
+</html>

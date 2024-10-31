@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Duygu Analizi</title>
+    <link rel="stylesheet" href="../../static/FaceRecoApp/css/SentimentAnalysisStyle.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+<body>
+    <div class="top-button">
+        <a href="http://127.0.0.1:8000/face/Processing/">Yüz Tanıma Uygulaması</a>
+    </div>
+
+    <div class="filter-container">
+        <div class="search">
+            <input type="text" id="search" placeholder="Search...">
+            <button type="submit" class="search-btn"><i class="fa fa-search"></i></button>
+        </div>
+
+        <select id="rowsPerPage">
+            <option value="25">25 rows</option>
+            <option value="50">50 rows</option>
+            <option value="100">100 rows</option>
+        </select>
+    </div>
+
+    <div class="table-container">
+        <table id="dataTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>AD</th>
+                    <th>SOYAD</th>
+                    <th>MESLEK</th>
+                    <th>YAŞ</th>
+                    <th>CİNSİYET</th>
+                    <th>TESPİT TARİHİ</th>
+                    <th>TESPİT EDİLEN DUYGU</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Tablo içeriği JavaScript ile doldurulacak -->
+            </tbody>
+        </table>
+    </div>
+
+    {{ analysis|json_script:"analysis-data" }}
+
+    <div class="pagination">
+        <button id="prevPage" disabled>ÖNCEKİ</button>
+        <button id="nextPage">SONRAKİ</button>
+    </div>
+
+    <script src="../../static/FaceRecoApp/js/SentimentAnalysis.js"></script>
+</body>
+
+</html>

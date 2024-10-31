@@ -1,0 +1,145 @@
+@import "https://fonts.googleapis.com/css?family=Press%20Start%202P";
+
+:root {
+    --dark: #000000;
+    --light: #9acbe0;
+    --primary-bg-color: #1e6787;
+    --primary-font-color: #05FF04;
+    --secondary-font-color: #FFFFFF;
+    --tertiary-font-color: #FF0000;
+    --primary-font-family: 'Press Start 2P';
+    --line-color: #05FF04;
+    --shadow: rgba(5, 255, 4, 0.5);
+}
+
+* {
+    margin: 0px;
+    padding: 0px;
+    box-sizing: border-box;
+    outline: none;
+    text-decoration: none;
+    user-select: none;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Üst buton */
+.top-button {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.top-button a {
+    text-decoration: none;
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border-radius: 5px;
+}
+
+/* Arama ve filtreleme alanı */
+.filter-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    max-width: 1000px;
+    margin: auto;
+    gap: 10px;
+}
+
+.search {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+.search-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 10px;
+    background: #2196F3;
+    color: white;
+    font-size: 17px;
+    border: 1px solid grey;
+    border-left: none;
+    cursor: pointer;
+}
+
+.filter-container input[type="text"],
+.filter-container select {
+    padding: 8px;
+    font-size: 14px;
+    margin-right: 10px;
+}
+
+/* Tablo */
+.table-container {
+    max-width: 1000px;
+    margin: 20px auto;
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 10px;
+}
+
+th,
+td {
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+th {
+    background-color: #f2f2f2;
+}
+
+/* Sayfa Değişim Butonları */
+.pagination {
+    display: flex;
+    justify-content: space-between;
+    max-width: 1000px;
+    margin: 20px auto;
+    gap: 10px;
+}
+
+.pagination button {
+    padding: 10px 15px;
+    font-size: 14px;
+    border: none;
+    color: white;
+    background-color: #4CAF50;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.pagination button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* Responsive Tasarım */
+@media (max-width: 768px) {
+    .filter-container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .pagination {
+        flex-direction: column;
+        align-items: center;
+    }
+}
