@@ -93,6 +93,7 @@ def reco(request):
     weight = "--"
     age = "--"
     gender = "--"
+    emotion = "--"
 
     try:
         if request.method == "POST":
@@ -143,6 +144,7 @@ def reco(request):
                         )
                     )
                     gender = findFace["gender"]
+                    emotion = dominant_emotion
                     break
     except Exception as e:
         print(e)
@@ -159,6 +161,7 @@ def reco(request):
             "weight": weight,
             "age": age,
             "gender": gender,
+            "emotion": emotion,
         }
     )
 

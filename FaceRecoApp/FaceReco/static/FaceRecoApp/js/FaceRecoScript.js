@@ -119,6 +119,7 @@ var left_size = document.getElementById('left_size');
 var left_weight = document.getElementById('left_weight');
 var left_age = document.getElementById('left_age');
 var left_gender = document.getElementById('left_gender');
+var left_emotion = document.getElementById('left_emotion');
 var canvasWidth = 640;
 var canvasHeight = 480;
 
@@ -156,6 +157,7 @@ async function sendWithAjax() {
             left_weight.textContent = result.weight;
             left_age.textContent = result.age;
             left_gender.textContent = result.gender;
+            left_emotion.textContent = result.emotion;
         },
         error: () => {
             left_name.textContent = "--";
@@ -167,6 +169,7 @@ async function sendWithAjax() {
             left_weight.textContent = "--";
             left_age.textContent = "--";
             left_gender.textContent = "--";
+            left_emotion.textContent = "--";
         }
     });
 }
