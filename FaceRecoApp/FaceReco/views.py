@@ -1,8 +1,8 @@
 import traceback
-from django.shortcuts import render  # type: ignore
-from django.http import JsonResponse  # type: ignore
-from django.views.decorators.csrf import csrf_exempt  # type: ignore
-from django.views.decorators.http import require_POST  # type: ignore
+from django.shortcuts import render
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 from firebase_admin import db
 from .models import *
 from deepface import DeepFace
@@ -10,7 +10,6 @@ import base64
 import cv2
 import cv2.data
 import numpy as np
-import json
 from datetime import datetime
 from PIL import Image
 from io import BytesIO
@@ -20,7 +19,7 @@ from datetime import datetime
 
 usersDictionary = {}
 usersFaceDictionary = {}
-analyzed_face = ""
+analyzed_face_id = ""
 detector = MTCNN()
 # Kendi eğittin modeli koyacaksınz
 
@@ -46,28 +45,39 @@ def processing(request):
 
 # Veritabanında Gelen Resimdeki Kişiyi Arama Methodu
 def searchFace(face_vector, emotion):
-    global analyzed_face
+    global analyzed_face_id
     for key, value in usersFaceDictionary.items():
         if np.linalg.norm(face_vector - int(key)) <= 0.5:  # güncellenicek
             user = usersDictionary[value]
-            if analyzed_face != value and emotion != "":
-                ref = db.reference("analysis")
-                ref.push(
-                    {
-                        "id": value,
-                        "name": user["name"],
-                        "surname": user["surname"],
-                        "job": user["job"],
-                        "old": datetime.now().year
-                        - datetime.strptime(user["dateOfBirth"], "%d/%m/%Y").year,
-                        "gender": "ERKEK" if user["gender"] else "KADIN",
-                        "dateDetected": datetime.now().strftime("%H:%M:%S - %d/%m/%Y"),
-                        "detectedEmotion": emotion,
-                    }
-                )
-                analyzed_face = value
+            if analyzed_face_id != value and emotion != "":
+                if registerEmotion(value, user, emotion):
+                    analyzed_face_id = value
 
             return user
+
+
+# Veritabanına Tespit Edilen Duygu Verilerini Kayıt Etme Methodu
+def registerEmotion(value, user, emotion):
+    try:
+        ref = db.reference("analysis")
+        ref.push(
+            {
+                "id": value,
+                "name": user["name"],
+                "surname": user["surname"],
+                "job": user["job"],
+                "old": datetime.now().year
+                - datetime.strptime(user["date_of_birth"], "%d/%m/%Y").year,
+                "gender": "ERKEK" if user["gender"] else "KADIN",
+                "dateDetected": datetime.now().strftime("%H:%M:%S - %d/%m/%Y"),
+                "detectedEmotion": emotion,
+            }
+        )
+
+        return True
+    except Exception as e:
+        print(e)
+        return False
 
 
 # Yüz Tanıma Methodu
@@ -112,27 +122,31 @@ def reco(request):
                     print(f"Bir hata oluştu: {e}")
 
                 findFace = searchFace(face_vector, dominant_emotion)
-                name = findFace["name"]
-                surname = findFace["surname"]
-                dateOfBirth = findFace["dateOfBirth"]
-                bloodGroup = findFace["bloodGroup"]
-                job = findFace["job"]
-                size = findFace["size"]
-                weight = findFace["weight"]
-                birth_date = datetime.strptime(findFace["dateOfBirth"], "%d/%m/%Y")
-                current_date = datetime.now()
-                age = (
-                    current_date.year
-                    - birth_date.year
-                    - (
-                        (current_date.month, current_date.day)
-                        < (birth_date.month, birth_date.day)
+                if findFace:
+                    name = findFace["name"]
+                    surname = findFace["surname"]
+                    dateOfBirth = findFace["date_of_birth"]
+                    bloodGroup = findFace["blood_group"]
+                    job = findFace["job"]
+                    size = findFace["size"]
+                    weight = findFace["weight"]
+                    birth_date = datetime.strptime(
+                        findFace["date_of_birth"], "%d/%m/%Y"
                     )
-                )
-                gender = "ERKEK" if findFace["gender"] == True else "KIZ"
-                break
+                    current_date = datetime.now()
+                    age = (
+                        current_date.year
+                        - birth_date.year
+                        - (
+                            (current_date.month, current_date.day)
+                            < (birth_date.month, birth_date.day)
+                        )
+                    )
+                    gender = findFace["gender"]
+                    break
     except Exception as e:
-        pass
+        print(e)
+        traceback.print_exc()
 
     return JsonResponse(
         {
@@ -258,6 +272,7 @@ def rec(request):
     )
 
 
+# Analiz Sayfasına Veri Göndermek İçin
 def analysis(request):
     ref = db.reference("analysis")
     analysis = ref.get()

@@ -127,7 +127,7 @@ function sendPhoto() {
         setTimeout(() => {
             sendWithAjax();
             sendPhoto();
-        }, 500);
+        }, 2000);
     }
 }
 
