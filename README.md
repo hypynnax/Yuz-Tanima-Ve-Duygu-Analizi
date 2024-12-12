@@ -136,6 +136,10 @@ Yüz tanıma özelliği, etiketlenmiş yüzlerden oluşan bir veri setinde eğit
 - **Epok Sayısı**: --
 - **Veri Seti**: 198.000+ etiketlenmiş görüntüdün oluşturduğu özel veri seti
 
+### Veri Seti Link
+
+Modelin eğitimi için kullanılan veri setine [buradan](https://drive.google.com/drive/folders/1-4d9zqiOTOEYmi-98AQiFM3TH7ae6zFZ?usp=sharing) erişebilirsiniz.
+
 ---
 
 ## Ekran Görüntüleri
