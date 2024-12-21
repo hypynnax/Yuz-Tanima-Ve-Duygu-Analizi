@@ -1,98 +1,77 @@
 import os
 import cv2
-import shutil
-import random
+import face_recognition
+from tqdm import tqdm
 
 
-# 1. ADIM (Klasörleri %70 Eğitim ve %30 Test Olarak Ayırma İşlemi)
-def split_folders(main_dir, train_dir, test_dir, train_size=378, test_size=162):
-    folders = [
-        f for f in os.listdir(main_dir) if os.path.isdir(os.path.join(main_dir, f))
-    ]
-
-    # Klasörleri rastgele karıştır
-    random.shuffle(folders)
-
-    # Klasörleri train ve test olarak ayır
-    train_folders = folders[:train_size]
-    test_folders = folders[train_size : train_size + test_size]
-
-    # Train ve test klasörlerini oluştur ve klasörleri taşı
-    for folder in train_folders:
-        shutil.move(os.path.join(main_dir, folder), os.path.join(train_dir, folder))
-
-    for folder in test_folders:
-        shutil.move(os.path.join(main_dir, folder), os.path.join(test_dir, folder))
+# Bulanıklık kontrolü
+def is_blurry(image, threshold=100):
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    laplacian_var = cv2.Laplacian(gray, cv2.CV_64F).var()
+    return laplacian_var < threshold
 
 
-# Ana klasör ve yeni train/test klasör yolları
-main_directory = "DataSet"  # Ana klasör (540 klasörün olduğu yer)
-train_directory = "DataSet/train"  # Train için hedef klasör
-test_directory = "DataSet/test"  # Test için hedef klasör
-
-# Klasörleri ayır ve taşı
-#split_folders(main_directory, train_directory, test_directory)
-
-
-# 2. ADIM (Sadece Train Klasöründeki Resimlerin Yüzlerini Kırpma İşlemi)
-def detect_and_crop_faces(main_dir, cascade_file="haarcascade_frontalface_default.xml"):
-    # Haar Cascades classifiar dosyasını yükle
-    face_cascade = cv2.CascadeClassifier(cascade_file)
-
-    i = 0
-    # Ana klasördeki tüm alt klasörlerde gezin
-    for root, dirs, files in os.walk(main_dir):
-        i += 1
-        for file in files:
-            if file.lower().endswith((".png", ".jpg", ".jpeg", ".bmp", ".gif")):
-                img_path = os.path.join(root, file)
-
-                # Resmi yükle
-                img = cv2.imread(img_path)
-
-                # Yüz tespiti için gri tonlamaya çevir
-                gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-                # Yüzleri tespit et
-                faces = face_cascade.detectMultiScale(
-                    gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30)
-                )
-
-                # Eğer yüz tespit edilirse, yüzü kırp ve kaydet
-                if len(faces) > 0:
-                    for x, y, w, h in faces:
-                        face_img = img[
-                            y : y + h, x : x + w
-                        ]  # Yüzü orijinal renkli haliyle kırp
-                        cv2.imwrite(
-                            img_path, face_img
-                        )  # Orijinal resmi kırpılmış yüzle değiştir
-                else:
-                    # Yüz tespit edilemezse orijinal resmi sil
-                    os.remove(img_path)
-
-        print(f"{i} / {len(files)}")
+# Yüz algılama ve kırpma (face_recognition)
+def detect_and_crop_face(image):
+    face_locations = face_recognition.face_locations(image)  # Yüzlerin koordinatları
+    if len(face_locations) > 0:
+        # İlk yüzün koordinatlarını al
+        top, right, bottom, left = face_locations[0]
+        return image[top:bottom, left:right]  # Yüz kırpılmış hali
+    return None  # Yüz bulunamadıysa None döndür
 
 
-# Yüzleri tespit edip kırp
-#detect_and_crop_faces(train_directory)
+# Klasör işlemleri
+def process_folder(input_folder, output_folder, max_images=100, blur_threshold=100):
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+
+    for person in tqdm(os.listdir(input_folder), desc=f"Processing {input_folder}"):
+        person_path = os.path.join(input_folder, person)
+        output_person_path = os.path.join(output_folder, person)
+
+        if not os.path.isdir(person_path):
+            continue
+
+        if not os.path.exists(output_person_path):
+            os.makedirs(output_person_path)
+
+        images = []
+        for img_name in os.listdir(person_path):
+            img_path = os.path.join(person_path, img_name)
+            try:
+                image = cv2.imread(img_path)
+                if image is None:
+                    continue  # Açılmayan dosyaları atla
+
+                if is_blurry(image, threshold=blur_threshold):
+                    continue  # Bulanık dosyaları atla
+
+                cropped_face = detect_and_crop_face(image)
+                if cropped_face is not None:
+                    images.append((img_name, cropped_face))
+
+            except Exception as e:
+                print(f"Error processing {img_path}: {e}")
+
+        # En kaliteli max_images kadar resmi seç ve kaydet
+        images = images[:max_images]  # Daha fazla resim varsa sınırlıyoruz
+        for img_name, face in images:
+            output_path = os.path.join(output_person_path, img_name)
+            cv2.imwrite(output_path, face)
 
 
-def count_images_in_directory(main_dir):
-    total_images = 0
-    # Alt klasörleri geziyor
-    for root, dirs, files in os.walk(main_dir):
-        # Resim dosyalarını sayıyor
-        total_images += len(
-            [
-                file
-                for file in files
-                if file.lower().endswith((".png", ".jpg", ".jpeg", ".bmp", ".gif"))
-            ]
-        )
-    return total_images
+# Train ve test klasörlerini işle
+train_input_folder = "DataSet\\train"
+test_input_folder = "DataSet\\test"
+train_output_folder = "PreDataSet\\processed_train"
+test_output_folder = "PreDataSet\\processed_test"
 
+process_folder(
+    train_input_folder, train_output_folder, max_images=100, blur_threshold=100
+)
+process_folder(
+    test_input_folder, test_output_folder, max_images=100, blur_threshold=100
+)
 
-# Toplam resim sayısını öğren
-#total_images = count_images_in_directory("DataSet/test")
-#print(f"Toplam resim sayısı: {total_images}")
+print("Processing complete!")
