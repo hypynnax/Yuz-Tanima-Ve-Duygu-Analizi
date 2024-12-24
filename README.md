@@ -138,7 +138,7 @@ Yüz tanıma özelliği, etiketlenmiş yüzlerden oluşan bir veri setinde eğit
 
 ### Veri Seti Link
 
-Modelin eğitimi için kullanılan veri setine [buradan](https://drive.google.com/drive/folders/1-4d9zqiOTOEYmi-98AQiFM3TH7ae6zFZ?usp=sharing) erişebilirsiniz.
+Modelin eğitimi için kullanılan veri setinin ham haline [buradan](https://drive.google.com/drive/folders/1-4d9zqiOTOEYmi-98AQiFM3TH7ae6zFZ?usp=sharing), ön işlem görmüş son haline [buradan](https://drive.google.com/drive/folders/1D8rRwJJRgXBaBn9jvKipwAaQBp-t9goO?usp=sharing) erişebilirsiniz.
 
 ---
 
