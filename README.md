@@ -109,31 +109,31 @@ Yüz tanıma özelliği, etiketlenmiş yüzlerden oluşan bir veri setinde eğit
 
 ### Model Mimarisi
 
-- **Temel Model**: ResNet50 (ImageNet ağırlıkları ile)
+- **Temel Model**: VGG16 (ImageNet ağırlıkları ile)
 - **Özel Katmanlar**:
   - Flatten katmanı
   - ReLU aktivasyonlu Yoğun katman
   - Dropout katmanı (0.5)
-  - Softmax aktivasyonlu çıkış katmanı (sınıf sayısı kadar)
+  - 128 bit uzunluğunda yüz vektörü çıkış katmanı
 
 ### Performans Ölçütleri
 
-- **Doğruluk**: Test veri setinde %--
-- **Kayıp**: --
-- **Karmaşıklık Matrisi**:
+- **Doğruluk**: Test veri setinde %89,6
+- **Kayıp**: 1.35
+- **Doğruluk Grafiği**:
 
-  ![Confusion Matrix](docs/confusion_matrix.png)
+  ![Accuracy Graph](docs/accuracy.png)
 
-- **ROC Eğrisi**:
+- **Kayıp Grafiği**:
 
-  ![ROC Curve](docs/roc_curve.png)
+  ![Loss Graph](docs/loss.png)
 
 ### Eğitim Detayları
 
-- **Optimizasyon**: --
-- **Öğrenme Oranı**: --
-- **Batch Boyutu**: --
-- **Epok Sayısı**: --
+- **Optimizasyon**: Adam
+- **Öğrenme Oranı**: 0.0001
+- **Batch Boyutu**: 64
+- **Epok Sayısı**: 100
 - **Veri Seti**: 198.000+ etiketlenmiş görüntüdün oluşturduğu özel veri seti
 
 ### Veri Seti Link
