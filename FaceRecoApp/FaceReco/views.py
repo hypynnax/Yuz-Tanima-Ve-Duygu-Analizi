@@ -15,13 +15,13 @@ from PIL import Image
 from io import BytesIO
 from mtcnn import MTCNN
 from datetime import datetime
+import json
 
 
 usersDictionary = {}
 usersFaceDictionary = {}
 analyzed_face_id = ""
 detector = MTCNN()
-# Kendi eğittin modeli koyacaksınz
 
 
 # Veritabanındaki Tüm Verileri Alma Methodu
@@ -47,7 +47,9 @@ def processing(request):
 def searchFace(face_vector, emotion):
     global analyzed_face_id
     for key, value in usersFaceDictionary.items():
-        if np.linalg.norm(face_vector - int(key)) <= 0.5:  # güncellenicek
+        distance = np.linalg.norm(np.array(face_vector) - np.array(json.loads(key)))
+        print("uzaklık : ", distance)
+        if distance < 1.0:
             user = usersDictionary[value]
             if analyzed_face_id != value and emotion != "":
                 if registerEmotion(value, user, emotion):
@@ -109,7 +111,8 @@ def reco(request):
             for face in faces:
                 x, y, width, height = face["box"]
                 keypoints = face["keypoints"]
-                face_vector = 3  # model ile yüz vektörünü çıkar ve gönder
+                face_image = img_rgb[y : y + height, x : x + width]
+                face_vector = DeepFace.represent(face_image, model_name="VGG-Face")
                 dominant_emotion = ""
                 try:
                     analysis = DeepFace.analyze(img_path=img_rgb, actions=["emotion"])
@@ -122,7 +125,7 @@ def reco(request):
                 except Exception as e:
                     print(f"Bir hata oluştu: {e}")
 
-                findFace = searchFace(face_vector, dominant_emotion)
+                findFace = searchFace(face_vector[0]['embedding'], dominant_emotion)
                 if findFace:
                     name = findFace["name"]
                     surname = findFace["surname"]
@@ -238,19 +241,9 @@ def rec(request):
                     x, y, width, height = face["box"]
                     keypoints = face["keypoints"]
 
-                    cv2.rectangle(
-                        img_rgb, (x, y), (x + width, y + height), (255, 0, 0), 2
-                    )
+                    face_image = img_rgb[y : y + height, x : x + width]
+                    face_vector = json.dumps(DeepFace.represent(face_image, model_name="VGG-Face")[0]['embedding'])
 
-                    cv2.circle(img_rgb, keypoints["left_eye"], 2, (0, 255, 0), 2)
-                    cv2.circle(img_rgb, keypoints["right_eye"], 2, (0, 255, 0), 2)
-                    cv2.circle(img_rgb, keypoints["nose"], 2, (0, 255, 0), 2)
-                    cv2.circle(img_rgb, keypoints["mouth_left"], 2, (0, 255, 0), 2)
-                    cv2.circle(img_rgb, keypoints["mouth_right"], 2, (0, 255, 0), 2)
-
-                    face_vector = (
-                        f"{3}"  # model ile yüz vektörünü çıkar ve buraya kayıt et
-                    )
                     userPhoto = UserPhoto(
                         userId=id,
                         photo=face_vector,

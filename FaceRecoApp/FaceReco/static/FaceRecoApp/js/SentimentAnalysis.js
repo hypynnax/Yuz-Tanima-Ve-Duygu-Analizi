@@ -47,6 +47,7 @@ document.getElementById('prevPage').addEventListener('click', () => {
 });
 
 document.getElementById('nextPage').addEventListener('click', () => {
+    alert("asdfşkjasdf");
     const maxPage = Math.ceil(tableData.length / rowsPerPage);
     if (currentPage < maxPage) {
         currentPage++;
