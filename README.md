@@ -41,7 +41,7 @@ Bu proje, gerçek zamanlı yüz tanıma ve duygu analizi yapan Django tabanlı b
 1. **Depoyu Klonlayın**:
 
    ```bash
-   git clone https://github.com/senin-repo/yuz-ve-duygu-analizi.git
+   git clone https://github.com/hypynnax/yuz-ve-duygu-analizi.git
    cd yuz-ve-duygu-analizi
    ```
 
